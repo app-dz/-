@@ -1,0 +1,1730 @@
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة النجاح اليومية الشاملة | Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        tajawal: ['Tajawal', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b'
+                        },
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #0b0f19;
+            color: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+        .glow-box {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.15);
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+        input, select, textarea {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+            border-color: #334155 !important;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6 !important;
+            ring: 2px solid #3b82f6;
+        }
+    </style>
+</head>
+<body class="min-h-screen custom-scrollbar flex flex-col">
+
+    <!-- Top Navigation & Header -->
+    <header class="bg-slate-900/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- User Profile / App Logo -->
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-blue-600 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-emerald-500/20">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-xl font-black tracking-wide text-white">منظومة القائد اليومية</h1>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">2 تقني رياضي - هـ. مدنية</span>
+                        </div>
+                        <p class="text-xs text-slate-400 flex items-center gap-2 mt-0.5" id="current-datetime">
+                            <i class="fa-regular fa-clock text-blue-400"></i> جاري تحميل الوقت...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Fast Top Controls: Season Mode & Quick Balance -->
+                <div class="flex items-center gap-3">
+                    <!-- Season / Schedule Mode Selector -->
+                    <div class="bg-slate-800/90 p-1 rounded-xl border border-slate-700 flex items-center">
+                        <i class="fa-solid fa-calendar-day text-amber-400 px-2 text-sm"></i>
+                        <select id="season-selector" onchange="changeSeasonMode()" class="bg-transparent text-xs font-bold text-slate-200 border-none rounded-lg p-1.5 focus:ring-0 cursor-pointer">
+                            <option value="school">📚 فترة دراسية عادية</option>
+                            <option value="summer">☀️ عطلة الصيف (بدون دراسة)</option>
+                            <option value="winter">❄️ عطلة الشتاء (مكثف مشاريع)</option>
+                            <option value="spring">🌱 عطلة الربيع (تطوير ذاتي)</option>
+                            <option value="autumn">🍂 عطلة الخريف</option>
+                        </select>
+                    </div>
+
+                    <!-- Quick Wallet Glance -->
+                    <div class="hidden sm:flex items-center gap-3 bg-gradient-to-r from-emerald-950/70 to-slate-900 border border-emerald-600/30 px-3.5 py-1.5 rounded-xl">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                            <i class="fa-solid fa-wallet text-sm"></i>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-semibold">محفظتي الكلية الحالية</div>
+                            <div class="text-sm font-black text-emerald-400" id="header-wallet">0 د.ج</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation Horizontal Scroll -->
+            <div class="flex items-center space-x-reverse space-x-2 overflow-x-auto py-2.5 no-scrollbar border-t border-slate-800/80 text-sm">
+                <button onclick="switchTab('routine')" id="tab-btn-routine" class="tab-btn active px-4 py-2 rounded-xl font-bold flex items-center gap-2 whitespace-nowrap transition-all duration-200">
+                    <i class="fa-solid fa-list-check"></i> الروتين واليوميات
+                </button>
+                <button onclick="switchTab('fitness')" id="tab-btn-fitness" class="tab-btn px-4 py-2 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center gap-2 whitespace-nowrap transition-all duration-200">
+                    <i class="fa-solid fa-dumbbell"></i> الرياضة والأكل الصحي
+                </button>
+                <button onclick="switchTab('poultry')" id="tab-btn-poultry" class="tab-btn px-4 py-2 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center gap-2 whitespace-nowrap transition-all duration-200">
+                    <i class="fa-solid fa-egg"></i> مشروع الدواجن والسمان
+                </button>
+                <button onclick="switchTab('academic')" id="tab-btn-academic" class="tab-btn px-4 py-2 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center gap-2 whitespace-nowrap transition-all duration-200">
+                    <i class="fa-solid fa-graduation-cap"></i> الدراسة (تقني رياضي)
+                </button>
+                <button onclick="switchTab('business')" id="tab-btn-business" class="tab-btn px-4 py-2 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center gap-2 whitespace-nowrap transition-all duration-200">
+                    <i class="fa-solid fa-laptop-code"></i> البراند والتجارة والتداول
+                </button>
+                <button onclick="switchTab('finance')" id="tab-btn-finance" class="tab-btn px-4 py-2 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center gap-2 whitespace-nowrap transition-all duration-200">
+                    <i class="fa-solid fa-coins"></i> المالية والأهداف
+                </button>
+                <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="tab-btn px-4 py-2 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-slate-800/70 flex items-center gap-2 whitespace-nowrap transition-all duration-200">
+                    <i class="fa-solid fa-chart-pie"></i> لوحة الإحصائيات
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Content Container -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ================= TAB 1: الروتين اليومي الذكي ================= -->
+        <section id="section-routine" class="tab-content space-y-6">
+            <!-- Progress & Season Alert Banner -->
+            <div class="bg-gradient-to-r from-blue-900/40 via-indigo-900/30 to-slate-900 border border-blue-500/20 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="season-badge" class="px-2.5 py-1 text-xs rounded-lg font-bold bg-blue-600/30 text-blue-300 border border-blue-400/30">وضع الدراسة نشط</span>
+                            <span class="text-xs text-slate-400" id="routine-date-str">اليومية المنظمة بالتوقيت الدقيق</span>
+                        </div>
+                        <h2 class="text-2xl font-extrabold text-white mt-1">جدول إنجازاتك اليومية الحازم</h2>
+                        <p class="text-xs text-slate-400 mt-1 max-w-2xl">
+                            ضع علامة صح عند إتمام كل محطة. يتغير الجدول تلقائياً بحسب العطل المدرسية أو أيام الدراسة.
+                        </p>
+                    </div>
+                    <div class="w-full md:w-64 bg-slate-800/80 p-3 rounded-xl border border-slate-700/60">
+                        <div class="flex justify-between items-center text-xs mb-1.5 font-bold">
+                            <span class="text-slate-300">معدل الإنجاز اليومي:</span>
+                            <span id="routine-progress-percent" class="text-emerald-400 font-black">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                            <div id="routine-progress-bar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-[11px] text-slate-400 text-center mt-1.5" id="routine-status-text">ابدأ يومك بصلاة الفجر والرياضة!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Language & Phase Fast Status Switches -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Language Dynamic Tracker Card -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-language"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-400 font-semibold">المسار اللغوي المعتمد بالجدول</div>
+                            <div class="text-base font-bold text-white flex items-center gap-2" id="current-language-name">
+                                🇬🇧 اللغة الإنجليزية (المستوى المتقدم)
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="toggleLanguageTrack()" class="px-3 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span id="btn-lang-toggle-text">إتقان الإنجليزية والانتقال للصينية</span>
+                    </button>
+                </div>
+
+                <!-- Business Phase Dynamic Tracker Card -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-400 font-semibold">محطة العمل الرقمي المسائية</div>
+                            <div class="text-base font-bold text-amber-300 flex items-center gap-2" id="current-phase-name">
+                                📦 المرحلة 1: المنتجات الرقمية والبراند
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="nextBusinessPhase()" class="px-3 py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-forward-step"></i>
+                        <span id="btn-phase-toggle-text">ترقية مسار البيزنس</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Daily Timeline Checklist -->
+            <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-blue-400"></i>
+                        جدول المهام اليومية الدقيق
+                    </h3>
+                    <button onclick="resetDailyChecklist()" class="text-xs text-slate-400 hover:text-rose-400 font-semibold flex items-center gap-1 transition">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> تصفير علامات الصح لليوم الجديد
+                    </button>
+                </div>
+
+                <div id="routine-tasks-container" class="space-y-3">
+                    <!-- Tasks will be injected via JavaScript depending on Season (School vs Vacations) -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: الرياضة والأكل الصحي ================= -->
+        <section id="section-fitness" class="tab-content hidden space-y-6">
+            <div class="bg-gradient-to-r from-emerald-900/30 via-slate-900 to-slate-900 border border-emerald-500/20 rounded-2xl p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <span class="text-xs font-bold bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">بناء القوة والانضباط</span>
+                        <h2 class="text-2xl font-black text-white mt-1">البرنامج الرياضي والتغذية الرياضية</h2>
+                        <p class="text-xs text-slate-400 mt-1">جدول تمارين مقسم بدقة (صدر/ترايسبس، ظهر/بايسبس، راحة، أرجل، أكتاف وبطن وساعد) + أكل صحي وجرانولا.</p>
+                    </div>
+                    <!-- Workout Day Selector -->
+                    <div class="flex items-center gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700">
+                        <label class="text-xs font-bold text-slate-300">يوم التمرين اليوم:</label>
+                        <select id="workout-day-select" onchange="renderWorkout()" class="bg-slate-900 text-xs font-bold text-emerald-400 rounded-lg p-1.5">
+                            <option value="1">اليوم 1: صدر + ترايسبس (Chest & Triceps)</option>
+                            <option value="2">اليوم 2: ظهر + بايسبس (Back & Biceps)</option>
+                            <option value="3">اليوم 3: استرجاع وراحة نشطة (Rest & Mobility)</option>
+                            <option value="4">اليوم 4: أرجل وبطات (Legs & Calves)</option>
+                            <option value="5">اليوم 5: أكتاف + بطن + ساعد (Shoulders, Abs & Forearms)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Exercises Column -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5">
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-700">
+                            <h3 class="font-extrabold text-white text-base flex items-center gap-2" id="workout-title">
+                                <i class="fa-solid fa-dumbbell text-emerald-400"></i> تفاصيل تمارين اليوم
+                            </h3>
+                            <span class="text-xs text-slate-400" id="workout-time-slot">التوقيت: 16:30 إلى 18:00</span>
+                        </div>
+                        <div id="workout-exercises-list" class="space-y-3">
+                            <!-- Exercises injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Morning Pushups Tracker (رياضة الضغط الصباحية) -->
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-fire-flame-curved"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-white">تحدي تمرين الضغط الصباحي (بعد صلاة الفجر)</h4>
+                                <p class="text-xs text-slate-400">تنشيط الدورة الدموية وبناء الكتلة العضلية</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-right">
+                                <label class="text-[10px] text-slate-400 block font-semibold">العدد المنجز اليوم</label>
+                                <input type="number" id="morning-pushups" min="0" value="40" onchange="saveFitnessData()" class="w-20 px-2 py-1 text-center font-black text-amber-400 text-lg rounded-xl">
+                            </div>
+                            <span class="text-sm font-bold text-slate-300">عدة ضغط</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nutrition & Healthy Meals Column -->
+                <div class="space-y-4">
+                    <!-- Healthy Food Card -->
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5">
+                        <h3 class="font-extrabold text-white text-base mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-bowl-food text-amber-400"></i> النظام الغذائي الصحي
+                        </h3>
+                        <div class="space-y-3 text-xs">
+                            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/60">
+                                <div class="font-bold text-emerald-400 flex items-center gap-1.5 mb-1">
+                                    <i class="fa-solid fa-sun"></i> فطور الصباح (بعد الضغط)
+                                </div>
+                                <p class="text-slate-300 leading-relaxed">شوفان أو بيض مسلوق طبيعي من المزرعة + زيت زيتون + خبز قمح كامل أو تمر للحصول على طاقة مستدامة.</p>
+                            </div>
+
+                            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/60">
+                                <div class="font-bold text-amber-400 flex items-center gap-1.5 mb-1">
+                                    <i class="fa-solid fa-cookie-bite"></i> سناك ما بعد الثانوية (غرانولا)
+                                </div>
+                                <p class="text-slate-300 leading-relaxed">وعاء غرانولا غني بالشوفان المحمص، العسل الطبيعي، اللوز، وبذور الشيا مع حليب أو ياغورت طبيعي قبل حصة الرياضة.</p>
+                            </div>
+
+                            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/60">
+                                <div class="font-bold text-blue-400 flex items-center gap-1.5 mb-1">
+                                    <i class="fa-solid fa-drumstick-bite"></i> وجبة ما بعد التمرين & العشاء
+                                </div>
+                                <p class="text-slate-300 leading-relaxed">صدر دجاج أو بيض طازج، أرز بني/بطاطا مسلوقة، وسلطة خضار طازجة لتسريع الاستشفاء العضلي.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hydration Tracker -->
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-blue-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-bottle-water"></i> استهلاك الماء اليومي
+                            </span>
+                            <span id="water-count-display" class="font-black text-white text-sm">6 / 10 كؤوس</span>
+                        </div>
+                        <div class="flex gap-1.5 my-3 justify-center" id="water-glasses-container">
+                            <!-- Injected by JS -->
+                        </div>
+                        <p class="text-[11px] text-slate-400 text-center">الترطيب الجيد يرفع تركيزك الذهني في الدراسة وأدائك العضلي</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: مشروع الدواجن والسمان ================= -->
+        <section id="section-poultry" class="tab-content hidden space-y-6">
+            <!-- Poultry Header Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl">
+                    <div class="text-[11px] font-bold text-slate-400">إجمالي القطيع الحالي</div>
+                    <div class="text-2xl font-black text-white mt-1" id="stat-total-birds">0</div>
+                    <div class="text-[10px] text-emerald-400 mt-0.5">طير (دجاج + سمان)</div>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl">
+                    <div class="text-[11px] font-bold text-slate-400">إنتاج البيض اليومي</div>
+                    <div class="text-2xl font-black text-amber-400 mt-1" id="stat-daily-eggs">0</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5" id="stat-weekly-eggs">أسبوعي: 0 بيضة</div>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl">
+                    <div class="text-[11px] font-bold text-slate-400">إجمالي التفقيس الجديد</div>
+                    <div class="text-2xl font-black text-cyan-400 mt-1" id="stat-total-hatch">0</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">صوص مولود بالمزرعة</div>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl">
+                    <div class="text-[11px] font-bold text-slate-400">صافي الربح اليومي من البيض</div>
+                    <div class="text-2xl font-black text-emerald-400 mt-1" id="stat-daily-net-egg-profit">0 د.ج</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">بعد طرح تكلفة العلف اليومي</div>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl col-span-2 lg:col-span-1">
+                    <div class="text-[11px] font-bold text-slate-400">صافي الربح الشهري المقدر</div>
+                    <div class="text-2xl font-black text-emerald-300 mt-1" id="stat-monthly-poultry-profit">0 د.ج</div>
+                    <div class="text-[10px] text-emerald-500/80 mt-0.5" id="stat-annual-poultry-profit">سنوي: 0 د.ج</div>
+                </div>
+            </div>
+
+            <!-- Poultry Detailed Editable Table -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 overflow-hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h3 class="font-extrabold text-white text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-feather-pointed text-amber-400"></i>
+                            جدول إدارة سلالات الدواجن والسمان (حساب آلي للمصاريف والإنتاج والربح)
+                        </h3>
+                        <p class="text-xs text-slate-400">يمكنك كتابة أي نوع بنفسك، إدخال الصيصان المشتراة، التفقيس، الوفيات، أسعار البيض والعلف، وسيحسب الموقع كل الأرباح بدقة.</p>
+                    </div>
+                    <button onclick="addNewPoultryRow()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-emerald-700/30">
+                        <i class="fa-solid fa-plus"></i> إضافة سلالة / نوع جديد
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-900/90 text-slate-300 font-bold uppercase border-b border-slate-700">
+                            <tr>
+                                <th class="p-3 min-w-[130px]">النوع / السلالة (تكتبه أنت)</th>
+                                <th class="p-3">العدد الحالي</th>
+                                <th class="p-3">فلوس/صيصان مشتراة</th>
+                                <th class="p-3">تفقيس بالمزرعة</th>
+                                <th class="p-3">وفيات</th>
+                                <th class="p-3">إنتاج البيض اليومي</th>
+                                <th class="p-3">سعر البيضة (د.ج)</th>
+                                <th class="p-3">علف يومي (كغ)</th>
+                                <th class="p-3">سعر كغ العلف (د.ج)</th>
+                                <th class="p-3">صافي ربح البيض اليومي</th>
+                                <th class="p-3 min-w-[160px]">ملاحظاتك ومتابعتك</th>
+                                <th class="p-3 text-center">حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="poultry-tbody" class="divide-y divide-slate-700/50">
+                            <!-- Rows rendered via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 flex flex-wrap items-center justify-between text-xs text-slate-400 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-blue-400"></i>
+                        <span>قاعدة الحساب: <b>صافي ربح البيض اليومي</b> = (إنتاج البيض × سعر البيضة) - (كمية العلف × سعر كغ العلف).</span>
+                    </div>
+                    <span class="text-emerald-400 font-bold">البيانات تُحفظ تلقائياً في متصفحك!</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: المسار الدراسي الأكاديمي ================= -->
+        <section id="section-academic" class="tab-content hidden space-y-6">
+            <div class="bg-gradient-to-r from-blue-900/30 via-slate-900 to-slate-900 border border-blue-500/20 rounded-2xl p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">الطور الثانوي - الجزائر</span>
+                            <span class="text-xs text-slate-400">السنة الثانية ثانوي: تقني رياضي (هندسة مدنية)</span>
+                        </div>
+                        <h2 class="text-2xl font-black text-white mt-1">سجل النقاط، الفروض والاختبارات ومؤشر التطور</h2>
+                        <p class="text-xs text-slate-400 mt-1">أدخل علاماتك في الفروض والاختبار الفصلي لمعرفة معدلك ومدى تطورك الأكاديمي.</p>
+                    </div>
+                    <!-- Overall Semester Average Display -->
+                    <div class="bg-slate-800/90 border border-slate-700 p-3.5 rounded-2xl text-center min-w-[170px]">
+                        <span class="text-[11px] font-bold text-slate-400 block">المعدل الفصلي التقديري</span>
+                        <div class="text-3xl font-black text-blue-400 mt-0.5" id="academic-overall-avg">0.00 / 20</div>
+                        <span class="text-[10px] font-bold text-emerald-400" id="academic-overall-status">في انتظار النقاط</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Grades Table -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-900/90 text-slate-300 font-bold uppercase border-b border-slate-700">
+                            <tr>
+                                <th class="p-3">المادة</th>
+                                <th class="p-3 text-center">المعامل</th>
+                                <th class="p-3 text-center">الفرض 1 (من 20)</th>
+                                <th class="p-3 text-center">الفرض 2 (من 20)</th>
+                                <th class="p-3 text-center">الاختبار (من 20)</th>
+                                <th class="p-3 text-center">معدل المادة</th>
+                                <th class="p-3 text-center">مؤشر التطور الفصلي</th>
+                            </tr>
+                        </thead>
+                        <tbody id="academic-tbody" class="divide-y divide-slate-700/50">
+                            <!-- Rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 5: البراند، التجارة الإلكترونية والتداول ================= -->
+        <section id="section-business" class="tab-content hidden space-y-6">
+            <!-- Business Phased Roadmap Guide -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">خريطة طريق ريادة الأعمال الرقمية</span>
+                        <h2 class="text-xl font-black text-white mt-1">تطور البيزنس: المنتجات الرقمية ⬅️ التجارة الإلكترونية ⬅️ التداول</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">البداية ببناء البراند وبيع المنتجات الرقمية (بدون رأس مال كبير)، تليها التجارة الإلكترونية، ثم التداول بالخبرة والسيولة.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="setBusinessPhase(1)" id="phase-pill-1" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition">1. منتجات رقمية</button>
+                        <button onclick="setBusinessPhase(2)" id="phase-pill-2" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition">2. تجارة إلكترونية</button>
+                        <button onclick="setBusinessPhase(3)" id="phase-pill-3" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition">3. تداول واستثمار</button>
+                    </div>
+                </div>
+
+                <!-- 3 Business Cards Grid: Digital Products, E-Commerce, Trading -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Stream 1: Digital Products & Personal Brand -->
+                    <div class="bg-slate-900/90 border border-indigo-500/30 rounded-2xl p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-black text-indigo-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i> المنتجات الرقمية والبراند
+                                </span>
+                                <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-md font-bold">المرحلة الحالية</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mb-3">كتب إلكترونية، قوالب جاهزة، أدلة تعليمية تسوق عبر فيديوهات البراند القصير.</p>
+                            
+                            <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                                <div class="bg-slate-800 p-2 rounded-xl">
+                                    <span class="text-[10px] text-slate-400 block">إجمالي أرباحها:</span>
+                                    <input type="number" id="biz-digital-profit" onchange="updateBusinessFinance()" class="w-full bg-transparent font-bold text-emerald-400 text-sm" value="0">
+                                </div>
+                                <div class="bg-slate-800 p-2 rounded-xl">
+                                    <span class="text-[10px] text-slate-400 block">تكاليف وخسائر:</span>
+                                    <input type="number" id="biz-digital-loss" onchange="updateBusinessFinance()" class="w-full bg-transparent font-bold text-rose-400 text-sm" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-xs pt-2 border-t border-slate-800 flex justify-between font-bold">
+                            <span class="text-slate-400">الصافي:</span>
+                            <span class="text-emerald-400" id="biz-digital-net">0 د.ج</span>
+                        </div>
+                    </div>
+
+                    <!-- Stream 2: E-Commerce -->
+                    <div class="bg-slate-900/90 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-black text-amber-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-cart-shopping"></i> التجارة الإلكترونية (E-com)
+                                </span>
+                                <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md font-bold">المرحلة الثانية</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mb-3">بيع المنتجات المادية وشحنها، تسويق عبر البراند، بناء علامة تجارية محلية أو دولية.</p>
+                            
+                            <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                                <div class="bg-slate-800 p-2 rounded-xl">
+                                    <span class="text-[10px] text-slate-400 block">إجمالي مبيعاتها:</span>
+                                    <input type="number" id="biz-ecom-profit" onchange="updateBusinessFinance()" class="w-full bg-transparent font-bold text-emerald-400 text-sm" value="0">
+                                </div>
+                                <div class="bg-slate-800 p-2 rounded-xl">
+                                    <span class="text-[10px] text-slate-400 block">إعلانات وشحن وخسائر:</span>
+                                    <input type="number" id="biz-ecom-loss" onchange="updateBusinessFinance()" class="w-full bg-transparent font-bold text-rose-400 text-sm" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-xs pt-2 border-t border-slate-800 flex justify-between font-bold">
+                            <span class="text-slate-400">الصافي:</span>
+                            <span class="text-emerald-400" id="biz-ecom-net">0 د.ج</span>
+                        </div>
+                    </div>
+
+                    <!-- Stream 3: Trading -->
+                    <div class="bg-slate-900/90 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-black text-cyan-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-chart-line"></i> التداول والأسواق المالية
+                                </span>
+                                <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md font-bold">المرحلة المتقدمة</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mb-3">تعلم التحليل الفني، إدارة المخاطر بدقة وحساب الصفقات الرابحة والخاسرة بدقة متناهية.</p>
+                            
+                            <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                                <div class="bg-slate-800 p-2 rounded-xl">
+                                    <span class="text-[10px] text-slate-400 block">أرباح الصفقات:</span>
+                                    <input type="number" id="biz-trade-profit" onchange="updateBusinessFinance()" class="w-full bg-transparent font-bold text-emerald-400 text-sm" value="0">
+                                </div>
+                                <div class="bg-slate-800 p-2 rounded-xl">
+                                    <span class="text-[10px] text-slate-400 block">خسائر الصفقات:</span>
+                                    <input type="number" id="biz-trade-loss" onchange="updateBusinessFinance()" class="w-full bg-transparent font-bold text-rose-400 text-sm" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-xs pt-2 border-t border-slate-800 flex justify-between font-bold">
+                            <span class="text-slate-400">صافي التداول (PnL):</span>
+                            <span class="text-emerald-400" id="biz-trade-net">0 د.ج</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brand Content & Videos of Today (فيديوهات اليوم للبراند) -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h3 class="font-extrabold text-white text-base flex items-center gap-2">
+                            <i class="fa-solid fa-video text-rose-500"></i>
+                            فيديوهات اليوم ومحتوى البراند الشخصي (Reels / TikTok / Shorts)
+                        </h3>
+                        <p class="text-xs text-slate-400">سجل الفيديوهات التي نشرتها اليوم للترويج للمنتجات الرقمية وبناء الجمهور.</p>
+                    </div>
+                    <button onclick="addNewVideoRow()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-plus"></i> إضافة فيديو نشرته اليوم
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-900/90 text-slate-300 font-bold border-b border-slate-700">
+                            <tr>
+                                <th class="p-2.5">عنوان / فكرة الفيديو</th>
+                                <th class="p-2.5">المنصة</th>
+                                <th class="p-2.5">المنتج الرقمي المروج له</th>
+                                <th class="p-2.5">المشاهدات الأولية</th>
+                                <th class="p-2.5">المبيعات أو النتائج المحققة</th>
+                                <th class="p-2.5 text-center">حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="brand-videos-tbody" class="divide-y divide-slate-700/50">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 6: المالية الشاملة والمحفظة والأهداف ================= -->
+        <section id="section-finance" class="tab-content hidden space-y-6">
+            <!-- Master Financial Snapshot -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Current Liquid Wallet -->
+                <div class="bg-gradient-to-br from-slate-900 to-emerald-950/60 border border-emerald-500/30 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400">محفظتي الكلية الآن (الرصيد الكلي المتوفر)</span>
+                            <div class="text-3xl font-black text-emerald-400 mt-2" id="fin-wallet-balance-disp">0 د.ج</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-vault"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+                        <span class="text-slate-400">تحديث رصيدك اليدوي:</span>
+                        <input type="number" id="fin-manual-wallet" onchange="updateFinancialCalculations()" class="w-32 px-2 py-1 rounded-lg text-emerald-300 font-bold text-right" placeholder="0">
+                    </div>
+                </div>
+
+                <!-- Daily Aggregated Income -->
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400">الدخل الإجمالي اليومي (كل المصادر)</span>
+                            <div class="text-3xl font-black text-cyan-400 mt-2" id="fin-daily-income">0 د.ج</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-400 flex justify-between">
+                        <span>بيض: <b id="fin-inc-poultry" class="text-emerald-400">0</b></span>
+                        <span>مشاريع: <b id="fin-inc-biz" class="text-indigo-400">0</b></span>
+                        <span>هدايا/أخرى: <b id="fin-inc-other" class="text-amber-400">0</b></span>
+                    </div>
+                </div>
+
+                <!-- Daily Savings & Spending -->
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400">ادخار اليوم vs مصاريف اليوم</span>
+                            <div class="flex items-center gap-3 mt-2">
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block font-semibold">ادخار اليوم:</span>
+                                    <span class="text-xl font-black text-emerald-400" id="fin-saved-today">0 د.ج</span>
+                                </div>
+                                <div class="h-8 w-px bg-slate-700"></div>
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block font-semibold">صرفت اليوم:</span>
+                                    <span class="text-xl font-black text-rose-400" id="fin-spent-today">0 د.ج</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-piggy-bank"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs flex items-center justify-between">
+                        <span class="text-slate-400">صافي ربح اليوم التراكمي:</span>
+                        <span class="font-black text-emerald-400" id="fin-daily-net-total">0 د.ج</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projections (Daily, Weekly, Monthly, Annually) -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6">
+                <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-blue-400"></i>
+                    توقعات الأرباح الآلية المحسوبة تلقائياً (من البيض + المشاريع الرقمية والتجارة)
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/70">
+                        <span class="text-xs text-slate-400 block font-bold">الربح اليومي الصافي</span>
+                        <div class="text-xl font-black text-white mt-1" id="calc-profit-daily">0 د.ج</div>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/70">
+                        <span class="text-xs text-slate-400 block font-bold">الربح الأسبوعي</span>
+                        <div class="text-xl font-black text-blue-400 mt-1" id="calc-profit-weekly">0 د.ج</div>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/70">
+                        <span class="text-xs text-slate-400 block font-bold">الربح الشهري المتوقع</span>
+                        <div class="text-xl font-black text-emerald-400 mt-1" id="calc-profit-monthly">0 د.ج</div>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/70">
+                        <span class="text-xs text-slate-400 block font-bold">الربح السنوي المتوقع</span>
+                        <div class="text-xl font-black text-amber-400 mt-1" id="calc-profit-yearly">0 د.ج</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Goal & Target Months Tracker -->
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-indigo-500/30 rounded-2xl p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-400 bg-indigo-500/20 px-2.5 py-0.5 rounded-full border border-indigo-500/30">بوصلة المستقبل</span>
+                        <h3 class="text-xl font-black text-white mt-1">الهدف المالي الذي أطمح للوصول إليه</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">حدد المبلغ والمهلة بالأشهر لتتبع نسبة اقترابك منه يوماً بعد يوم.</p>
+                    </div>
+                    <!-- Inputs for Goal Target and Months -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="bg-slate-800 p-2 rounded-xl border border-slate-700">
+                            <label class="text-[10px] text-slate-400 block font-bold">المبلغ المستهدف (د.ج)</label>
+                            <input type="number" id="goal-target-amount" onchange="updateFinancialCalculations()" value="500000" class="w-32 bg-transparent text-white font-black text-sm">
+                        </div>
+                        <div class="bg-slate-800 p-2 rounded-xl border border-slate-700">
+                            <label class="text-[10px] text-slate-400 block font-bold">المهلة المحددة (بالأشهر)</label>
+                            <input type="number" id="goal-target-months" onchange="updateFinancialCalculations()" value="6" class="w-20 bg-transparent text-amber-400 font-black text-sm text-center">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goal Progress Bar -->
+                <div class="space-y-2 mt-4">
+                    <div class="flex justify-between items-center text-xs font-bold">
+                        <span class="text-slate-300" id="goal-text-summary">التقدم نحو الهدف: 0 د.ج من أصل 500,000 د.ج</span>
+                        <span class="text-indigo-400 font-black text-sm" id="goal-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-3.5 rounded-full overflow-hidden border border-slate-700">
+                        <div id="goal-progress-bar" class="h-3.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-400 rounded-full transition-all duration-700" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-400 pt-1">
+                        <span id="goal-monthly-needed">المبلغ المطلوب ادخاره شهرياً للوصول: 0 د.ج / شهر</span>
+                        <span id="goal-status-badge" class="text-emerald-400 font-bold">واصل العمل الجاد!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Income and Spending Inputs -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5">
+                <h3 class="font-extrabold text-white text-base mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-400"></i> تسجيل المعاملات المالية لليوم
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
+                        <label class="text-xs text-slate-300 block font-bold mb-1">الادخار المخصص لليوم (د.ج):</label>
+                        <input type="number" id="input-daily-saving" onchange="updateFinancialCalculations()" class="w-full rounded-lg px-3 py-1.5 text-emerald-400 font-bold" value="1000">
+                    </div>
+                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
+                        <label class="text-xs text-slate-300 block font-bold mb-1">المصاريف اليومية الشخصية (د.ج):</label>
+                        <input type="number" id="input-daily-spent" onchange="updateFinancialCalculations()" class="w-full rounded-lg px-3 py-1.5 text-rose-400 font-bold" value="300">
+                    </div>
+                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
+                        <label class="text-xs text-slate-300 block font-bold mb-1">مداخيل أخرى / هدايا اليوم (د.ج):</label>
+                        <input type="number" id="input-daily-other" onchange="updateFinancialCalculations()" class="w-full rounded-lg px-3 py-1.5 text-cyan-400 font-bold" value="0">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 7: لوحة الإحصائيات العامة ================= -->
+        <section id="section-analytics" class="tab-content hidden space-y-6">
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6">
+                <h2 class="text-xl font-extrabold text-white mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-blue-400"></i>
+                    نظرة بيانية شاملة على كل مجالات حياتك
+                </h2>
+                <p class="text-xs text-slate-400 mb-6">رسم توضيحي لتوزيع الأرباح والإنتاج والتوازن بين الدراسة والمشاريع والصحة.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Chart 1: Revenue Streams -->
+                    <div class="bg-slate-900/90 border border-slate-700/80 p-4 rounded-xl">
+                        <h4 class="text-sm font-bold text-slate-200 mb-3 text-center">توزيع مصادر الدخل الصافي</h4>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="revenuePieChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Life Pillars Balance -->
+                    <div class="bg-slate-900/90 border border-slate-700/80 p-4 rounded-xl">
+                        <h4 class="text-sm font-bold text-slate-200 mb-3 text-center">مؤشر التوازن والالتزام الشخصي</h4>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="balanceRadarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-500 py-4 text-xs text-center">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div>منظومة الحياة المتكاملة &copy; 2025 - تقني رياضي (هندسة مدنية) ومشاريع المستقبل</div>
+            <div class="flex items-center gap-3 text-slate-400">
+                <span><i class="fa-solid fa-shield-halved text-emerald-400"></i> حفظ تلقائي محلي</span>
+                <span><i class="fa-solid fa-bolt text-amber-400"></i> نظام ديناميكي عالي الدقة</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        /* ================= STATE & DEFAULT DATA ================= */
+        const APP_STORAGE_KEY = "LIFE_OS_DATA_V1";
+
+        let appData = {
+            season: "school", // school, summer, winter, spring, autumn
+            language: "english", // english, chinese
+            businessPhase: 1, // 1: Digital Products, 2: E-commerce, 3: Trading
+            waterCount: 6,
+            morningPushups: 40,
+            walletBalance: 25000, // Algerian Dinars
+            dailySaving: 1200,
+            dailySpent: 400,
+            dailyOtherIncome: 0,
+            goalAmount: 600000,
+            goalMonths: 6,
+            business: {
+                digitalProfit: 15000,
+                digitalLoss: 1000,
+                ecomProfit: 0,
+                ecomLoss: 0,
+                tradeProfit: 0,
+                tradeLoss: 0
+            },
+            poultry: [
+                {
+                    id: 1,
+                    breed: "دجاج بلدي حر",
+                    count: 35,
+                    chicksBought: 10,
+                    hatchCount: 15,
+                    mortality: 1,
+                    dailyEggs: 22,
+                    eggPrice: 25,
+                    feedKg: 3.5,
+                    feedPricePerKg: 75,
+                    notes: "مناعة ممتازة ومقاومة للبرد"
+                },
+                {
+                    id: 2,
+                    breed: "دجاج بياض (لوهمان / فيومي)",
+                    count: 40,
+                    chicksBought: 20,
+                    hatchCount: 0,
+                    mortality: 0,
+                    dailyEggs: 34,
+                    eggPrice: 24,
+                    feedKg: 4.8,
+                    feedPricePerKg: 80,
+                    notes: "إنتاج بيض غزير جداً"
+                },
+                {
+                    id: 3,
+                    breed: "طيور السمان (Caille)",
+                    count: 60,
+                    chicksBought: 30,
+                    hatchCount: 25,
+                    mortality: 2,
+                    dailyEggs: 45,
+                    eggPrice: 12,
+                    feedKg: 1.8,
+                    feedPricePerKg: 90,
+                    notes: "بيض صحي جداً وطلب متزايد"
+                }
+            ],
+            academic: [
+                { id: "gc", name: "هندسة مدنية (التخصص)", coef: 6, test1: 17, test2: 18, exam: 16.5 },
+                { id: "math", name: "الرياضيات", coef: 6, test1: 15, test2: 16.5, exam: 15 },
+                { id: "phys", name: "العلوم الفيزيائية", coef: 5, test1: 14, test2: 15, exam: 14.5 },
+                { id: "ar", name: "اللغة العربية وآدابها", coef: 2, test1: 13, test2: 14, exam: 13.5 },
+                { id: "eng", name: "اللغة الإنجليزية", coef: 2, test1: 16, test2: 17, exam: 17 },
+                { id: "fr", name: "اللغة الفرنسية", coef: 2, test1: 12, test2: 13, exam: 12 },
+                { id: "isl", name: "العلوم الإسلامية", coef: 2, test1: 18, test2: 19, exam: 18.5 },
+                { id: "hg", name: "التاريخ والجغرافيا", coef: 2, test1: 14, test2: 15, exam: 14 }
+            ],
+            brandVideos: [
+                { id: 1, title: "كيف تنظم يومك كطالب تقني وتبني مشروعك", platform: "TikTok / Reels", product: "دليل الإنتاجية الرقمي", views: 2400, results: "3 مبيعات" },
+                { id: 2, title: "أسرار مضاعفة إنتاج بيض السمان والدجاج", platform: "YouTube Shorts", product: "قالب حساب المزارع", views: 5100, results: "5 مبيعات" }
+            ],
+            checkedTasks: {} // task_id: boolean
+        };
+
+        /* Load from LocalStorage if exists */
+        function loadSavedData() {
+            const saved = localStorage.getItem(APP_STORAGE_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    appData = { ...appData, ...parsed };
+                } catch (e) {
+                    console.error("Failed to load local storage", e);
+                }
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(appData));
+        }
+
+        /* ================= TIME & DATE ================= */
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const timeStr = now.toLocaleDateString('ar-DZ', options);
+            const dtElem = document.getElementById("current-datetime");
+            if (dtElem) dtElem.innerHTML = `<i class="fa-regular fa-clock text-blue-400"></i> ${timeStr}`;
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        /* ================= TAB NAVIGATION ================= */
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            const targetSection = document.getElementById(`section-${tabId}`);
+            const targetBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (targetSection) targetSection.classList.remove('hidden');
+            if (targetBtn) targetBtn.classList.add('active');
+
+            if (tabId === 'analytics') {
+                renderCharts();
+            }
+        }
+
+        /* ================= SEASON / HOLIDAY TOGGLE ================= */
+        function changeSeasonMode() {
+            const sel = document.getElementById("season-selector");
+            appData.season = sel.value;
+            saveData();
+            renderRoutineSchedule();
+        }
+
+        /* ================= LANGUAGE TOGGLE ================= */
+        function toggleLanguageTrack() {
+            if (appData.language === 'english') {
+                appData.language = 'chinese';
+            } else {
+                appData.language = 'english';
+            }
+            saveData();
+            renderRoutineSchedule();
+            updateLanguageDisplay();
+        }
+
+        function updateLanguageDisplay() {
+            const langNameEl = document.getElementById("current-language-name");
+            const btnLangText = document.getElementById("btn-lang-toggle-text");
+            if (appData.language === 'english') {
+                if (langNameEl) langNameEl.innerHTML = `🇬🇧 اللغة الإنجليزية (المستوى المتقدم)`;
+                if (btnLangText) btnLangText.innerText = "أتممت الإنجليزية، ابدأ بالصينية 🇨🇳";
+            } else {
+                if (langNameEl) langNameEl.innerHTML = `🇨🇳 اللغة الصينية (قيد التعلم والتركيز)`;
+                if (btnLangText) btnLangText.innerText = "العودة للإنجليزية أو المراجعة 🇬🇧";
+            }
+        }
+
+        /* ================= BUSINESS PHASE TOGGLE ================= */
+        function nextBusinessPhase() {
+            appData.businessPhase = appData.businessPhase >= 3 ? 1 : appData.businessPhase + 1;
+            saveData();
+            updateBusinessPhaseUI();
+            renderRoutineSchedule();
+        }
+
+        function setBusinessPhase(phase) {
+            appData.businessPhase = phase;
+            saveData();
+            updateBusinessPhaseUI();
+            renderRoutineSchedule();
+        }
+
+        function updateBusinessPhaseUI() {
+            const nameEl = document.getElementById("current-phase-name");
+            const btnText = document.getElementById("btn-phase-toggle-text");
+
+            [1, 2, 3].forEach(p => {
+                const pill = document.getElementById(`phase-pill-${p}`);
+                if (pill) {
+                    if (p === appData.businessPhase) {
+                        pill.className = "px-3 py-1.5 rounded-xl text-xs font-bold border border-amber-400 bg-amber-500/20 text-amber-300";
+                    } else {
+                        pill.className = "px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-700 bg-slate-800 text-slate-400";
+                    }
+                }
+            });
+
+            if (appData.businessPhase === 1) {
+                if (nameEl) nameEl.innerHTML = `📦 المرحلة 1: المنتجات الرقمية والبراند`;
+                if (btnText) btnText.innerText = "الانتقال للمرحلة 2 (التجارة الإلكترونية)";
+            } else if (appData.businessPhase === 2) {
+                if (nameEl) nameEl.innerHTML = `🛒 المرحلة 2: التجارة الإلكترونية الشاملة`;
+                if (btnText) btnText.innerText = "الانتقال للمرحلة 3 (التداول)";
+            } else {
+                if (nameEl) nameEl.innerHTML = `📈 المرحلة 3: التداول وإدارة رؤوس الأموال`;
+                if (btnText) btnText.innerText = "إعادة ضبط إلى المرحلة 1";
+            }
+        }
+
+        /* ================= ROUTINE TASKS BUILDER ================= */
+        function getRoutineTasks() {
+            const isSchool = (appData.season === 'school');
+            const langLabel = (appData.language === 'english') ? "اللغة الإنجليزية (سماع، نطق ومصطلحات)" : "اللغة الصينية (الحروف والكلمات الأساسية)";
+            let bizTaskName = "";
+
+            if (appData.businessPhase === 1) {
+                bizTaskName = "العمل الرقمي: إنشاء وتطوير منتج رقمي + نشر فيديوهات البراند";
+            } else if (appData.businessPhase === 2) {
+                bizTaskName = "العمل الرقمي: إدارة متجر التجارة الإلكترونية + فحص الطلبيات والإعلانات";
+            } else {
+                bizTaskName = "العمل الرقمي: جلسة تحليل سوق التداول + مراجعة الإدارة المالية للصفقات";
+            }
+
+            const tasks = [
+                { id: "t_fajr", time: "05:00 ص", title: "صلاة الفجر في المسجد / في وقتها", desc: "بداية البركة واليقظة الذهنية والروحية", cat: "دين" },
+                { id: "t_morning_pushup", time: "05:30 ص", title: "رياضة ضغط خفيفة (Push-ups) + أذكار الصباح", desc: "تنشيط الدم ورفع التستوستيرون والانضباط", cat: "صحة" },
+                { id: "t_breakfast", time: "06:15 ص", title: "فطور صباح صحي وغني بالبروتين", desc: "بيض طازج من القطيع أو شوفان طبيعي وزيت زيتون", cat: "صحة" }
+            ];
+
+            if (isSchool) {
+                tasks.push(
+                    { id: "t_school", time: "07:45 ص - 16:00", title: "الذهاب للثانوية (تركيز تام وفهم دروس التقني رياضي)", desc: "استيعاب الهندسة المدنية والرياضيات والفيزياء داخل القسم لتوفير الوقت", cat: "دراسة" },
+                    { id: "t_rest_granola", time: "16:15", title: "قسط راحة خفيف + أكل صحي (غرانولا ومكسرات)", desc: "شحن طاقة الجسد قبل بدء التمرين الرياضي المباشر", cat: "صحة" }
+                );
+            } else {
+                tasks.push(
+                    { id: "t_vac_poultry", time: "08:00 ص - 10:30 ص", title: "متابعة مزرعة الدجاج والسمان وتطوير المسكن", desc: "فحص التفقيس، خلطات العلف، النظافة وتجهيز كراتين البيض (وضع العطلة)", cat: "مشاريع" },
+                    { id: "t_vac_project", time: "11:00 ص - 14:00", title: "التركيز المكثف على العمل الرقمي وتصوير الفيديوهات", desc: "استغلال العطلة في تسريع نمو البراند الشخصي والمبيعات", cat: "مشاريع" },
+                    { id: "t_vac_granola", time: "16:00", title: "وجبة غرانولا صحية وفاكهة + صلاة العصر", desc: "تغذية عضلية قبل بدء التمرين المسائي", cat: "صحة" }
+                );
+            }
+
+            // Afternoon Gym & Prayers
+            tasks.push(
+                { id: "t_gym", time: "16:45 - 18:00", title: "حصة الرياضة الكاملة في القاعة / المنزل", desc: "تمرين العضلات حسب جدول اليوم مع التركيز على الأداء الصحيح", cat: "صحة" },
+                { id: "t_maghrib", time: "18:15", title: "صلاة المغرب + حمام دافئ واسترجاع", desc: "شكر النعم وراحة الجسد", cat: "دين" }
+            );
+
+            if (isSchool) {
+                tasks.push(
+                    { id: "t_study", time: "18:45 - 20:30", title: "مراجعة الدروس وحل التمارين (هندسة مدنية، رياضيات، فيزياء)", desc: "حل مسائل وتطبيقات الهندسة المدنية وتثبيت المكتسبات", cat: "دراسة" }
+                );
+            } else {
+                tasks.push(
+                    { id: "t_study_vac", time: "18:45 - 20:30", title: "دراسة ذاتية لكتب تقنية وهندسية ومطالعة حرة", desc: "تثبيت مفاهيم الهندسة المدنية المتقدمة والقراءة في الاقتصاد", cat: "تطوير" }
+                );
+            }
+
+            tasks.push(
+                { id: "t_isha_dinner", time: "20:30", title: "صلاة العشاء + وجبة العشاء المتوازنة", desc: "تغذية نظيفة تعزز الاستشفاء العضلي", cat: "دين" },
+                { id: "t_language", time: "21:00 - 21:45", title: `جلسة تعلم: ${langLabel}`, desc: "تطوير مستمر للغة للانطلاق في الأسواق العالمية", cat: "لغات" },
+                { id: "t_biz_work", time: "21:45 - 22:45", title: bizTaskName, desc: "تسجيل الأرباح، مراجعة الإعلانات وتطوير مسار البيزنس", cat: "بيزنس" },
+                { id: "t_sleep_prep", time: "23:00", title: "أذكار النوم، تسجيل موازنة اليوم والنوم الباكر", desc: "نوم 7-8 ساعات لإعادة بناء العضلات والتركيز لليوم القادم", cat: "نوم" }
+            );
+
+            return tasks;
+        }
+
+        function renderRoutineSchedule() {
+            const container = document.getElementById("routine-tasks-container");
+            const badge = document.getElementById("season-badge");
+            const dateStr = document.getElementById("routine-date-str");
+
+            if (appData.season === 'school') {
+                badge.innerText = "وضع المدرسة والدراسة نشط 📚";
+                badge.className = "px-2.5 py-1 text-xs rounded-lg font-bold bg-blue-600/30 text-blue-300 border border-blue-400/30";
+            } else if (appData.season === 'summer') {
+                badge.innerText = "☀️ عطلة الصيف (تركيز مشاريع ورياضة)";
+                badge.className = "px-2.5 py-1 text-xs rounded-lg font-bold bg-amber-600/30 text-amber-300 border border-amber-400/30";
+            } else if (appData.season === 'winter') {
+                badge.innerText = "❄️ عطلة الشتاء (تطوير مكثف ومراجعة)";
+                badge.className = "px-2.5 py-1 text-xs rounded-lg font-bold bg-cyan-600/30 text-cyan-300 border border-cyan-400/30";
+            } else if (appData.season === 'spring') {
+                badge.innerText = "🌱 عطلة الربيع";
+                badge.className = "px-2.5 py-1 text-xs rounded-lg font-bold bg-emerald-600/30 text-emerald-300 border border-emerald-400/30";
+            } else {
+                badge.innerText = "🍂 عطلة الخريف";
+                badge.className = "px-2.5 py-1 text-xs rounded-lg font-bold bg-orange-600/30 text-orange-300 border border-orange-400/30";
+            }
+
+            const tasks = getRoutineTasks();
+            let totalChecked = 0;
+
+            let html = "";
+            tasks.forEach(task => {
+                const isChecked = !!appData.checkedTasks[task.id];
+                if (isChecked) totalChecked++;
+
+                html += `
+                    <div class="flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 ${isChecked ? 'bg-emerald-950/20 border-emerald-500/40 opacity-90' : 'bg-slate-900/80 border-slate-700/80 hover:border-slate-600'}">
+                        <div class="flex items-center gap-3.5 flex-grow">
+                            <input type="checkbox" id="${task.id}" ${isChecked ? 'checked' : ''} onchange="toggleTaskCheck('${task.id}')"
+                                class="w-5 h-5 rounded-md text-emerald-500 focus:ring-emerald-400 bg-slate-800 border-slate-600 cursor-pointer">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-black px-2 py-0.5 rounded-md ${isChecked ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-blue-300 border border-slate-700'}">${task.time}</span>
+                                    <h4 class="text-sm font-bold ${isChecked ? 'line-through text-slate-400' : 'text-slate-100'}">${task.title}</h4>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-0.5">${task.desc}</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] text-slate-500 font-bold px-2 py-1 rounded bg-slate-800/80">${task.cat}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // Progress bar
+            const pct = Math.round((totalChecked / tasks.length) * 100) || 0;
+            document.getElementById("routine-progress-percent").innerText = `${pct}%`;
+            document.getElementById("routine-progress-bar").style.width = `${pct}%`;
+            
+            const statusEl = document.getElementById("routine-status-text");
+            if (pct === 100) statusEl.innerText = "🔥 أسطورة! أنجزت كل مهام اليوم بنجاح مبهر!";
+            else if (pct >= 50) statusEl.innerText = "💪 ممتاز! نصف اليوم مكتمل، واصل بثبات!";
+            else statusEl.innerText = "ابدأ يومك بصلاة الفجر والرياضة وأتمم المهام!";
+        }
+
+        function toggleTaskCheck(taskId) {
+            appData.checkedTasks[taskId] = !appData.checkedTasks[taskId];
+            saveData();
+            renderRoutineSchedule();
+        }
+
+        function resetDailyChecklist() {
+            if (confirm("هل تريد تصفير جميع علامات الصح لتبدأ يوماً جديداً؟")) {
+                appData.checkedTasks = {};
+                saveData();
+                renderRoutineSchedule();
+            }
+        }
+
+        /* ================= FITNESS & NUTRITION ================= */
+        const workoutsData = {
+            1: {
+                title: "اليوم 1: تمرين الصدر والترايسبس (Chest & Triceps)",
+                exercises: [
+                    { name: "ضغط البنش المستوي بالبار أو الدمبلز (Flat Bench Press)", sets: "4 جولات", reps: "8-12 عدة", tip: "تحكم في النزول وانقباض قوي في الأعلى" },
+                    { name: "ضغط الصدر العلوي بالدمبلز (Incline Dumbbell Press)", sets: "3 جولات", reps: "10-12 عدة", tip: "زاوية المقعد 30 إلى 45 درجة لاستهداف الصدر العلوي" },
+                    { name: "تفتيح الصدر بالكيبل أو الدمبلز (Chest Cable Flyes)", sets: "3 جولات", reps: "12-15 عدة", tip: "تمدد عريض مع تركيز الإحساس العضلي" },
+                    { name: "ترايسبس بالكيبل بالحبل (Triceps Rope Pushdown)", sets: "4 جولات", reps: "12-15 عدة", tip: "تثبيت الكوعين بجانب الجسم تماماً" },
+                    { name: "ترايسبس فوق الرأس بالدمبل (Overhead Triceps Extension)", sets: "3 جولات", reps: "10-12 عدة", tip: "تمديد الرأس الطويل للترايسبس" }
+                ]
+            },
+            2: {
+                title: "اليوم 2: تمرين الظهر والبايسبس (Back & Biceps)",
+                exercises: [
+                    { name: "سحب الظهر العلوي / العقلة (Lat Pulldown or Pull-ups)", sets: "4 جولات", reps: "8-12 عدة", tip: "سحب بالظهر وليس فقط بالذراعين" },
+                    { name: "سحب أرضي بالبار أو الدمبل (Barbell Bent-over Row)", sets: "4 جولات", reps: "8-10 عدة", tip: "الحفاظ على استقامة الظهر لحماية الفقرات" },
+                    { name: "سحب جالس للكيبل (Seated Cable Row)", sets: "3 جولات", reps: "12 عدة", tip: "ضم لوحي الكتف في نهاية الحركة" },
+                    { name: "تبادل بايسبس بالدمبلز (Incline Dumbbell Bicep Curl)", sets: "3 جولات", reps: "10-12 عدة", tip: "عزل كامل لعضلة البايسبس" },
+                    { name: "بايسبس هامر بالحبل (Hammer Curls)", sets: "3 جولات", reps: "12-15 عدة", tip: "تقوية الساعد وعضلة البراكياليس" }
+                ]
+            },
+            3: {
+                title: "اليوم 3: راحة نشطة واسترجاع (Active Rest & Mobility)",
+                exercises: [
+                    { name: "المشي السريع في الهواء الطلق", sets: "30-45 دقيقة", reps: "وتيرة خفيفة", tip: "تجديد الأوكسجين والتخلص من حمض اللاكتيك" },
+                    { name: "تمارين إطالة ومرونة المفاصل (Stretching)", sets: "15 دقيقة", reps: "لكل عضلة", tip: "زيادة المدى الحركي والاسترخاء" },
+                    { name: "تأمل وتركيز ومطالعة", sets: "جلسة هادئة", reps: "صفاء ذهني", tip: "تقليل التوتر واسترجاع شحن الجهاز العصبي" }
+                ]
+            },
+            4: {
+                title: "اليوم 4: تمرين الأرجل والسمانة (Legs & Calves)",
+                exercises: [
+                    { name: "السكوات بالبار (Barbell Squat) أو دمبلز", sets: "4 جولات", reps: "8-12 عدة", tip: "نزول تحت زاوية 90 درجة مع عمود فقري محمي" },
+                    { name: "دفع الأرجل بالآلة (Leg Press)", sets: "4 جولات", reps: "10-12 عدة", tip: "قدمين بعرض الكتفين وضغط بكعب القدم" },
+                    { name: "رفرفة الأرجل الخلفية (Lying Hamstring Curls)", sets: "3 جولات", reps: "12-15 عدة", tip: "تقوية أوتار الركبة الخلفية" },
+                    { name: "الطعنات بالدمبلز (Walking Dumbbell Lunges)", sets: "3 جولات", reps: "12 خطوة لكل رجل", tip: "توازن وثبات عالي" },
+                    { name: "تمرين بطات الساق (Standing Calf Raises)", sets: "4 جولات", reps: "15-20 عدة", tip: "توقف ثانية كاملة في القمة" }
+                ]
+            },
+            5: {
+                title: "اليوم 5: الأكتاف والبطن والساعد (Shoulders, Abs & Forearms)",
+                exercises: [
+                    { name: "ضغط الأكتاف بالدمبلز (Seated Dumbbell Shoulder Press)", sets: "4 جولات", reps: "8-12 عدة", tip: "تقوية الكتف الأمامي والجانبي" },
+                    { name: "رفرفة جانبية بالدمبلز (Dumbbell Lateral Raises)", sets: "4 جولات", reps: "12-15 عدة", tip: "رفع الكوع بمحاذاة الكتف لبناء عرض الظهر" },
+                    { name: "رفرفة خلفية للكتف الخلفي (Face Pulls or Rear Delt Flyes)", sets: "3 جولات", reps: "15 عدة", tip: "حماية مفصل الكتف واستقامة القامة" },
+                    { name: "تمارين البطن (Hanging Leg Raises / Crunches)", sets: "4 جولات", reps: "15-20 عدة", tip: "شد عضلات البطن في كل حركة" },
+                    { name: "تمارين الساعد بالبار (Wrist Curls & Reverse Curls)", sets: "3 جولات", reps: "15 عدة", tip: "قوة قبضة يد فولاذية" }
+                ]
+            }
+        };
+
+        function renderWorkout() {
+            const day = document.getElementById("workout-day-select").value;
+            const wData = workoutsData[day] || workoutsData[1];
+            document.getElementById("workout-title").innerHTML = `<i class="fa-solid fa-dumbbell text-emerald-400"></i> ${wData.title}`;
+
+            let html = "";
+            wData.exercises.forEach(ex => {
+                html += `
+                    <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-700/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <div class="text-sm font-bold text-white">${ex.name}</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5"><i class="fa-solid fa-circle-check text-emerald-500 text-[10px]"></i> ${ex.tip}</div>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 self-end sm:self-center">
+                            <span class="text-xs font-bold text-emerald-400">${ex.sets}</span>
+                            <span class="text-[10px] text-slate-400">×</span>
+                            <span class="text-xs font-bold text-blue-400">${ex.reps}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById("workout-exercises-list").innerHTML = html;
+        }
+
+        function renderWater() {
+            const container = document.getElementById("water-glasses-container");
+            let html = "";
+            for (let i = 1; i <= 10; i++) {
+                const filled = i <= appData.waterCount;
+                html += `
+                    <button onclick="setWater(${i})" class="w-7 h-9 rounded-md transition-all flex items-center justify-center text-xs font-bold ${filled ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30' : 'bg-slate-700/60 text-slate-500 hover:bg-slate-700'}">
+                        <i class="fa-solid fa-glass-water"></i>
+                    </button>
+                `;
+            }
+            container.innerHTML = html;
+            document.getElementById("water-count-display").innerText = `${appData.waterCount} / 10 كؤوس (${(appData.waterCount * 0.25).toFixed(1)} لتر)`;
+        }
+
+        function setWater(n) {
+            appData.waterCount = (appData.waterCount === n) ? n - 1 : n;
+            saveData();
+            renderWater();
+        }
+
+        function saveFitnessData() {
+            const pushVal = parseInt(document.getElementById("morning-pushups").value) || 0;
+            appData.morningPushups = pushVal;
+            saveData();
+        }
+
+        /* ================= POULTRY & QUAIL FARM MANAGER ================= */
+        function renderPoultryTable() {
+            const tbody = document.getElementById("poultry-tbody");
+            let html = "";
+
+            let totalBirds = 0;
+            let totalHatch = 0;
+            let totalDailyEggs = 0;
+            let totalDailyFeedCost = 0;
+            let totalDailyEggIncome = 0;
+
+            appData.poultry.forEach((item, index) => {
+                const dailyEggIncome = (item.dailyEggs || 0) * (item.eggPrice || 0);
+                const dailyFeedCost = (item.feedKg || 0) * (item.feedPricePerKg || 0);
+                const netDailyProfit = dailyEggIncome - dailyFeedCost;
+
+                totalBirds += (item.count || 0);
+                totalHatch += (item.hatchCount || 0);
+                totalDailyEggs += (item.dailyEggs || 0);
+                totalDailyFeedCost += dailyFeedCost;
+                totalDailyEggIncome += dailyEggIncome;
+
+                html += `
+                    <tr class="hover:bg-slate-800/50 transition border-b border-slate-700/40">
+                        <td class="p-2.5">
+                            <input type="text" value="${item.breed || ''}" onchange="updatePoultryItem(${index}, 'breed', this.value)" class="w-full px-2 py-1 rounded-lg text-xs font-bold text-slate-100 bg-slate-900 border border-slate-700">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="number" min="0" value="${item.count || 0}" onchange="updatePoultryItem(${index}, 'count', this.value)" class="w-16 px-1.5 py-1 rounded-lg text-xs font-bold text-center text-white bg-slate-900 border border-slate-700">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="number" min="0" value="${item.chicksBought || 0}" onchange="updatePoultryItem(${index}, 'chicksBought', this.value)" class="w-16 px-1.5 py-1 rounded-lg text-xs text-amber-300 text-center bg-slate-900 border border-slate-700">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="number" min="0" value="${item.hatchCount || 0}" onchange="updatePoultryItem(${index}, 'hatchCount', this.value)" class="w-16 px-1.5 py-1 rounded-lg text-xs text-cyan-300 text-center bg-slate-900 border border-slate-700">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="number" min="0" value="${item.mortality || 0}" onchange="updatePoultryItem(${index}, 'mortality', this.value)" class="w-14 px-1.5 py-1 rounded-lg text-xs text-rose-400 text-center bg-slate-900 border border-slate-700">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="number" min="0" value="${item.dailyEggs || 0}" onchange="updatePoultryItem(${index}, 'dailyEggs', this.value)" class="w-16 px-1.5 py-1 rounded-lg text-xs text-amber-400 font-black text-center bg-slate-900 border border-slate-700">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="number" step="0.5" min="0" value="${item.eggPrice || 0}" onchange="updatePoultryItem(${index}, 'eggPrice', this.value)" class="w-16 px-1.5 py-1 rounded-lg text-xs text-white text-center bg-slate-900 border border-slate-700">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="number" step="0.1" min="0" value="${item.feedKg || 0}" onchange="updatePoultryItem(${index}, 'feedKg', this.value)" class="w-16 px-1.5 py-1 rounded-lg text-xs text-slate-300 text-center bg-slate-900 border border-slate-700">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="number" min="0" value="${item.feedPricePerKg || 0}" onchange="updatePoultryItem(${index}, 'feedPricePerKg', this.value)" class="w-16 px-1.5 py-1 rounded-lg text-xs text-slate-300 text-center bg-slate-900 border border-slate-700">
+                        </td>
+                        <td class="p-2.5">
+                            <span class="font-extrabold ${netDailyProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'} whitespace-nowrap">${netDailyProfit.toLocaleString()} د.ج</span>
+                        </td>
+                        <td class="p-2.5">
+                            <input type="text" value="${item.notes || ''}" onchange="updatePoultryItem(${index}, 'notes', this.value)" class="w-full px-2 py-1 rounded-lg text-xs text-slate-300 bg-slate-900 border border-slate-700" placeholder="ملاحظات صحية...">
+                        </td>
+                        <td class="p-2.5 text-center">
+                            <button onclick="deletePoultryRow(${index})" class="text-slate-500 hover:text-rose-400 p-1 transition">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+
+            // Update poultry aggregate cards
+            const totalDailyProfit = totalDailyEggIncome - totalDailyFeedCost;
+            const weeklyEggs = totalDailyEggs * 7;
+            const monthlyProfit = totalDailyProfit * 30;
+            const yearlyProfit = totalDailyProfit * 365;
+
+            document.getElementById("stat-total-birds").innerText = totalBirds.toLocaleString();
+            document.getElementById("stat-daily-eggs").innerText = totalDailyEggs.toLocaleString();
+            document.getElementById("stat-weekly-eggs").innerText = `أسبوعي: ${weeklyEggs.toLocaleString()} بيضة`;
+            document.getElementById("stat-total-hatch").innerText = totalHatch.toLocaleString();
+            document.getElementById("stat-daily-net-egg-profit").innerText = `${totalDailyProfit.toLocaleString()} د.ج`;
+            document.getElementById("stat-monthly-poultry-profit").innerText = `${monthlyProfit.toLocaleString()} د.ج`;
+            document.getElementById("stat-annual-poultry-profit").innerText = `سنوي: ${yearlyProfit.toLocaleString()} د.ج`;
+
+            updateFinancialCalculations();
+        }
+
+        function updatePoultryItem(index, key, val) {
+            if (['count', 'chicksBought', 'hatchCount', 'mortality', 'dailyEggs', 'eggPrice', 'feedKg', 'feedPricePerKg'].includes(key)) {
+                appData.poultry[index][key] = parseFloat(val) || 0;
+            } else {
+                appData.poultry[index][key] = val;
+            }
+            saveData();
+            renderPoultryTable();
+        }
+
+        function addNewPoultryRow() {
+            appData.poultry.push({
+                id: Date.now(),
+                breed: "سلالة جديدة (أدخل اسمها)",
+                count: 10,
+                chicksBought: 0,
+                hatchCount: 0,
+                mortality: 0,
+                dailyEggs: 5,
+                eggPrice: 20,
+                feedKg: 1,
+                feedPricePerKg: 75,
+                notes: ""
+            });
+            saveData();
+            renderPoultryTable();
+        }
+
+        function deletePoultryRow(index) {
+            if (confirm("هل تريد حذف هذا الصنف من الجدول؟")) {
+                appData.poultry.splice(index, 1);
+                saveData();
+                renderPoultryTable();
+            }
+        }
+
+        /* ================= ACADEMIC (2AS TM GÉNIE CIVIL) ================= */
+        function renderAcademicTable() {
+            const tbody = document.getElementById("academic-tbody");
+            let html = "";
+            let totalWeighted = 0;
+            let sumCoef = 0;
+
+            appData.academic.forEach((sub, idx) => {
+                const t1 = parseFloat(sub.test1) || 0;
+                const t2 = parseFloat(sub.test2) || 0;
+                const ex = parseFloat(sub.exam) || 0;
+
+                // Typical Algerian High school semester subject calculation:
+                // ((فرض 1 + فرض 2) / 2 + (اختبار × 2)) / 3
+                const testAvg = (t1 + t2) / 2;
+                const subjectAvg = ((testAvg + (ex * 2)) / 3);
+                const weighted = subjectAvg * sub.coef;
+
+                totalWeighted += weighted;
+                sumCoef += sub.coef;
+
+                // Progress indicator comparing Test 1 vs Exam
+                let diff = ex - t1;
+                let badge = "";
+                if (diff >= 1) {
+                    badge = `<span class="bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center justify-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> تطور ممتاز (+${diff.toFixed(1)})</span>`;
+                } else if (diff <= -1) {
+                    badge = `<span class="bg-rose-500/20 text-rose-400 font-bold px-2 py-0.5 rounded-full border border-rose-500/30 flex items-center justify-center gap-1"><i class="fa-solid fa-arrow-trend-down"></i> بحاجة لمجهود (${diff.toFixed(1)})</span>`;
+                } else {
+                    badge = `<span class="bg-blue-500/20 text-blue-300 font-bold px-2 py-0.5 rounded-full border border-blue-500/30 flex items-center justify-center gap-1"><i class="fa-solid fa-equals"></i> استقرار (${diff.toFixed(1)})</span>`;
+                }
+
+                html += `
+                    <tr class="hover:bg-slate-800/50 transition">
+                        <td class="p-3 font-bold text-white flex items-center gap-2">
+                            ${sub.id === 'gc' ? '<i class="fa-solid fa-compass-drafting text-blue-400"></i>' : '<i class="fa-solid fa-book text-slate-500"></i>'}
+                            ${sub.name}
+                        </td>
+                        <td class="p-3 text-center font-black text-amber-400">${sub.coef}</td>
+                        <td class="p-3 text-center">
+                            <input type="number" step="0.25" min="0" max="20" value="${sub.test1}" onchange="updateSubjectGrade(${idx}, 'test1', this.value)" class="w-16 px-1.5 py-1 text-center font-bold rounded-lg text-white">
+                        </td>
+                        <td class="p-3 text-center">
+                            <input type="number" step="0.25" min="0" max="20" value="${sub.test2}" onchange="updateSubjectGrade(${idx}, 'test2', this.value)" class="w-16 px-1.5 py-1 text-center font-bold rounded-lg text-white">
+                        </td>
+                        <td class="p-3 text-center">
+                            <input type="number" step="0.25" min="0" max="20" value="${sub.exam}" onchange="updateSubjectGrade(${idx}, 'exam', this.value)" class="w-16 px-1.5 py-1 text-center font-black rounded-lg text-blue-400">
+                        </td>
+                        <td class="p-3 text-center font-extrabold text-sm text-emerald-400">${subjectAvg.toFixed(2)}</td>
+                        <td class="p-3 text-center">${badge}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+
+            const overallAvg = sumCoef > 0 ? (totalWeighted / sumCoef) : 0;
+            const avgDisp = document.getElementById("academic-overall-avg");
+            const statDisp = document.getElementById("academic-overall-status");
+            if (avgDisp) avgDisp.innerText = `${overallAvg.toFixed(2)} / 20`;
+
+            if (statDisp) {
+                if (overallAvg >= 16) {
+                    statDisp.innerText = "🏆 تهانينا! تقدير ممتاز وطريقك مفتوح للهندسة والريادة!";
+                    statDisp.className = "text-[10px] font-bold text-emerald-400";
+                } else if (overallAvg >= 14) {
+                    statDisp.innerText = "⭐ جيد جداً! أداء متألق في التقني رياضي";
+                    statDisp.className = "text-[10px] font-bold text-blue-400";
+                } else if (overallAvg >= 10) {
+                    statDisp.innerText = "👍 معدل مقبول ويمكنك رفعه بحل تمارين أكثر";
+                    statDisp.className = "text-[10px] font-bold text-amber-400";
+                } else {
+                    statDisp.innerText = "⚠️ يجب تكثيف حل مسائل الهندسة والرياضيات";
+                    statDisp.className = "text-[10px] font-bold text-rose-400";
+                }
+            }
+        }
+
+        function updateSubjectGrade(idx, field, val) {
+            appData.academic[idx][field] = parseFloat(val) || 0;
+            saveData();
+            renderAcademicTable();
+        }
+
+        /* ================= BUSINESS & BRAND ================= */
+        function renderBusinessHub() {
+            document.getElementById("biz-digital-profit").value = appData.business.digitalProfit || 0;
+            document.getElementById("biz-digital-loss").value = appData.business.digitalLoss || 0;
+            document.getElementById("biz-ecom-profit").value = appData.business.ecomProfit || 0;
+            document.getElementById("biz-ecom-loss").value = appData.business.ecomLoss || 0;
+            document.getElementById("biz-trade-profit").value = appData.business.tradeProfit || 0;
+            document.getElementById("biz-trade-loss").value = appData.business.tradeLoss || 0;
+
+            updateBusinessNetDisplays();
+            renderBrandVideosTable();
+            updateBusinessPhaseUI();
+        }
+
+        function updateBusinessNetDisplays() {
+            const digNet = (appData.business.digitalProfit || 0) - (appData.business.digitalLoss || 0);
+            const ecomNet = (appData.business.ecomProfit || 0) - (appData.business.ecomLoss || 0);
+            const tradeNet = (appData.business.tradeProfit || 0) - (appData.business.tradeLoss || 0);
+
+            const dEl = document.getElementById("biz-digital-net");
+            const eEl = document.getElementById("biz-ecom-net");
+            const tEl = document.getElementById("biz-trade-net");
+
+            if (dEl) dEl.innerText = `${digNet.toLocaleString()} د.ج`;
+            if (eEl) eEl.innerText = `${ecomNet.toLocaleString()} د.ج`;
+            if (tEl) tEl.innerText = `${tradeNet.toLocaleString()} د.ج`;
+        }
+
+        function updateBusinessFinance() {
+            appData.business.digitalProfit = parseFloat(document.getElementById("biz-digital-profit").value) || 0;
+            appData.business.digitalLoss = parseFloat(document.getElementById("biz-digital-loss").value) || 0;
+            appData.business.ecomProfit = parseFloat(document.getElementById("biz-ecom-profit").value) || 0;
+            appData.business.ecomLoss = parseFloat(document.getElementById("biz-ecom-loss").value) || 0;
+            appData.business.tradeProfit = parseFloat(document.getElementById("biz-trade-profit").value) || 0;
+            appData.business.tradeLoss = parseFloat(document.getElementById("biz-trade-loss").value) || 0;
+
+            saveData();
+            updateBusinessNetDisplays();
+            updateFinancialCalculations();
+        }
+
+        function renderBrandVideosTable() {
+            const tbody = document.getElementById("brand-videos-tbody");
+            let html = "";
+            appData.brandVideos.forEach((vid, i) => {
+                html += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="p-2.5">
+                            <input type="text" value="${vid.title || ''}" onchange="updateVideoRow(${i}, 'title', this.value)" class="w-full px-2 py-1 rounded bg-slate-900 border border-slate-700 text-white font-semibold">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="text" value="${vid.platform || ''}" onchange="updateVideoRow(${i}, 'platform', this.value)" class="w-28 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-slate-300">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="text" value="${vid.product || ''}" onchange="updateVideoRow(${i}, 'product', this.value)" class="w-36 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-indigo-300">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="number" value="${vid.views || 0}" onchange="updateVideoRow(${i}, 'views', this.value)" class="w-20 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-cyan-300 text-center font-bold">
+                        </td>
+                        <td class="p-2.5">
+                            <input type="text" value="${vid.results || ''}" onchange="updateVideoRow(${i}, 'results', this.value)" class="w-28 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-emerald-400 font-bold">
+                        </td>
+                        <td class="p-2.5 text-center">
+                            <button onclick="deleteVideoRow(${i})" class="text-slate-500 hover:text-rose-400 p-1">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function updateVideoRow(idx, field, val) {
+            appData.brandVideos[idx][field] = (field === 'views') ? (parseInt(val) || 0) : val;
+            saveData();
+        }
+
+        function addNewVideoRow() {
+            appData.brandVideos.push({
+                id: Date.now(),
+                title: "فيديو تسويقي جديد للبراند",
+                platform: "Reels / TikTok",
+                product: "منتج رقمي جديد",
+                views: 500,
+                results: "1 مبيعة"
+            });
+            saveData();
+            renderBrandVideosTable();
+        }
+
+        function deleteVideoRow(idx) {
+            appData.brandVideos.splice(idx, 1);
+            saveData();
+            renderBrandVideosTable();
+        }
+
+        /* ================= FINANCIAL CALCULATIONS & WALLET ================= */
+        function updateFinancialCalculations() {
+            // Read UI inputs
+            const manualWalletInput = document.getElementById("fin-manual-wallet");
+            if (manualWalletInput && manualWalletInput.value !== "") {
+                appData.walletBalance = parseFloat(manualWalletInput.value) || 0;
+            }
+
+            const inSaving = document.getElementById("input-daily-saving");
+            const inSpent = document.getElementById("input-daily-spent");
+            const inOther = document.getElementById("input-daily-other");
+            const inGoal = document.getElementById("goal-target-amount");
+            const inMonths = document.getElementById("goal-target-months");
+
+            if (inSaving) appData.dailySaving = parseFloat(inSaving.value) || 0;
+            if (inSpent) appData.dailySpent = parseFloat(inSpent.value) || 0;
+            if (inOther) appData.dailyOtherIncome = parseFloat(inOther.value) || 0;
+            if (inGoal) appData.goalAmount = parseFloat(inGoal.value) || 500000;
+            if (inMonths) appData.goalMonths = parseFloat(inMonths.value) || 6;
+
+            saveData();
+
+            // Calculate daily income from Poultry
+            let dailyPoultryEggIncome = 0;
+            let dailyFeedCost = 0;
+            appData.poultry.forEach(p => {
+                dailyPoultryEggIncome += (p.dailyEggs || 0) * (p.eggPrice || 0);
+                dailyFeedCost += (p.feedKg || 0) * (p.feedPricePerKg || 0);
+            });
+            const netPoultryDaily = Math.max(0, dailyPoultryEggIncome - dailyFeedCost);
+
+            // Business Net Total
+            const netDigital = (appData.business.digitalProfit || 0) - (appData.business.digitalLoss || 0);
+            const netEcom = (appData.business.ecomProfit || 0) - (appData.business.ecomLoss || 0);
+            const netTrade = (appData.business.tradeProfit || 0) - (appData.business.tradeLoss || 0);
+            const netBizTotal = netDigital + netEcom + netTrade;
+
+            // Total Daily Inflow
+            const totalDailyInflow = netPoultryDaily + netBizTotal + (appData.dailyOtherIncome || 0);
+            const netDailyAfterExpense = totalDailyInflow - (appData.dailySpent || 0);
+
+            // Update UI widgets
+            document.getElementById("header-wallet").innerText = `${(appData.walletBalance || 0).toLocaleString()} د.ج`;
+            document.getElementById("fin-wallet-balance-disp").innerText = `${(appData.walletBalance || 0).toLocaleString()} د.ج`;
+            if (manualWalletInput) manualWalletInput.placeholder = appData.walletBalance || 0;
+
+            document.getElementById("fin-daily-income").innerText = `${totalDailyInflow.toLocaleString()} د.ج`;
+            document.getElementById("fin-inc-poultry").innerText = `${netPoultryDaily.toLocaleString()} د.ج`;
+            document.getElementById("fin-inc-biz").innerText = `${netBizTotal.toLocaleString()} د.ج`;
+            document.getElementById("fin-inc-other").innerText = `${(appData.dailyOtherIncome || 0).toLocaleString()} د.ج`;
+
+            document.getElementById("fin-saved-today").innerText = `${(appData.dailySaving || 0).toLocaleString()} د.ج`;
+            document.getElementById("fin-spent-today").innerText = `${(appData.dailySpent || 0).toLocaleString()} د.ج`;
+            document.getElementById("fin-daily-net-total").innerText = `${netDailyAfterExpense.toLocaleString()} د.ج`;
+
+            // Projections
+            const weeklyP = totalDailyInflow * 7;
+            const monthlyP = totalDailyInflow * 30;
+            const yearlyP = totalDailyInflow * 365;
+
+            document.getElementById("calc-profit-daily").innerText = `${totalDailyInflow.toLocaleString()} د.ج`;
+            document.getElementById("calc-profit-weekly").innerText = `${weeklyP.toLocaleString()} د.ج`;
+            document.getElementById("calc-profit-monthly").innerText = `${monthlyP.toLocaleString()} د.ج`;
+            document.getElementById("calc-profit-yearly").innerText = `${yearlyP.toLocaleString()} د.ج`;
+
+            // Financial Goal Progress
+            const goalTarget = appData.goalAmount || 500000;
+            const goalMonths = appData.goalMonths || 6;
+            const currentWallet = appData.walletBalance || 0;
+            const goalPct = Math.min(100, Math.round((currentWallet / goalTarget) * 100));
+
+            document.getElementById("goal-progress-bar").style.width = `${goalPct}%`;
+            document.getElementById("goal-percent").innerText = `${goalPct}%`;
+            document.getElementById("goal-text-summary").innerText = `التقدم نحو الهدف: ${currentWallet.toLocaleString()} د.ج من أصل ${goalTarget.toLocaleString()} د.ج`;
+
+            const remaining = Math.max(0, goalTarget - currentWallet);
+            const neededPerMonth = goalMonths > 0 ? Math.round(remaining / goalMonths) : 0;
+            document.getElementById("goal-monthly-needed").innerText = `المطلوب تحقيقه وادخاره شهرياً: ${neededPerMonth.toLocaleString()} د.ج / شهر (${goalMonths} أشهر متبقية)`;
+        }
+
+        /* ================= ANALYTICS CHARTS ================= */
+        let revenueChart = null;
+        let radarChart = null;
+
+        function renderCharts() {
+            // Net income sources breakdown
+            let poultryNet = 0;
+            appData.poultry.forEach(p => {
+                poultryNet += Math.max(0, (p.dailyEggs * p.eggPrice) - (p.feedKg * p.feedPricePerKg));
+            });
+
+            const digitalNet = Math.max(0, (appData.business.digitalProfit || 0) - (appData.business.digitalLoss || 0));
+            const ecomNet = Math.max(0, (appData.business.ecomProfit || 0) - (appData.business.ecomLoss || 0));
+            const tradeNet = Math.max(0, (appData.business.tradeProfit || 0) - (appData.business.tradeLoss || 0));
+
+            const ctxPie = document.getElementById("revenuePieChart");
+            if (ctxPie) {
+                if (revenueChart) revenueChart.destroy();
+                revenueChart = new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['مشروع الدواجن والبيض', 'المنتجات الرقمية', 'التجارة الإلكترونية', 'التداول'],
+                        datasets: [{
+                            data: [poultryNet || 1, digitalNet || 1, ecomNet || 0.1, tradeNet || 0.1],
+                            backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#06b6d4'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#cbd5e1', font: { family: 'Tajawal', size: 11 } }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Radar Chart for Discipline Balance
+            const ctxRadar = document.getElementById("balanceRadarChart");
+            if (ctxRadar) {
+                if (radarChart) radarChart.destroy();
+                radarChart = new Chart(ctxRadar, {
+                    type: 'radar',
+                    data: {
+                        labels: ['الانضباط الرياضي', 'التحصيل الدراسي (هـ مدنية)', 'إنتاج الدواجن', 'تطوير البراند', 'الادخار المالي', 'تعلم اللغات'],
+                        datasets: [{
+                            label: 'مستوى الأداء الفعلي %',
+                            data: [90, 85, 92, 75, 80, 78],
+                            backgroundColor: 'rgba(59, 130, 246, 0.25)',
+                            borderColor: '#3b82f6',
+                            pointBackgroundColor: '#10b981',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: { color: '#334155' },
+                                grid: { color: '#1e293b' },
+                                pointLabels: { color: '#94a3b8', font: { family: 'Tajawal', size: 10 } },
+                                ticks: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+        }
+
+        /* ================= INITIALIZATION ON PAGE LOAD ================= */
+        document.addEventListener("DOMContentLoaded", () => {
+            loadSavedData();
+
+            // Set Initial UI states from appData
+            document.getElementById("season-selector").value = appData.season || 'school';
+            document.getElementById("morning-pushups").value = appData.morningPushups || 40;
+            document.getElementById("input-daily-saving").value = appData.dailySaving || 1000;
+            document.getElementById("input-daily-spent").value = appData.dailySpent || 300;
+            document.getElementById("input-daily-other").value = appData.dailyOtherIncome || 0;
+            document.getElementById("goal-target-amount").value = appData.goalAmount || 500000;
+            document.getElementById("goal-target-months").value = appData.goalMonths || 6;
+            document.getElementById("fin-manual-wallet").value = appData.walletBalance || 0;
+
+            // Render all dynamic tabs
+            updateLanguageDisplay();
+            updateBusinessPhaseUI();
+            renderRoutineSchedule();
+            renderWorkout();
+            renderWater();
+            renderPoultryTable();
+            renderAcademicTable();
+            renderBusinessHub();
+            updateFinancialCalculations();
+        });
+    </script>
+</body>
+</html>
